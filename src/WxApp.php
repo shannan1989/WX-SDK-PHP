@@ -15,8 +15,7 @@ class WXApp extends WxBase {
 	public function jsCode2Session($code) {
 		$api_url = 'https://api.weixin.qq.com/sns/jscode2session?appid=' . $this->_app_id . '&secret=' . $this->_app_secret . '&js_code=' . $code . '&grant_type=authorization_code';
 		$s = self::get($api_url);
-		$s1 = json_decode($s, true);
-		return $s1;
+		return json_decode($s, true);
 	}
 
 	/**
