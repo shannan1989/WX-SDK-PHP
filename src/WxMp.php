@@ -13,7 +13,7 @@ class WxMp extends WxBase {
 	 * @return array
 	 */
 	public function getCallbackIp() {
-		$api_url = 'https://api.weixin.qq.com/cgi-bin/getcallbackip?access_token=';
+		$api_url = 'https://api.weixin.qq.com/cgi-bin/getcallbackip?access_token=' . $this->getAccessToken();
 		$s = self::get($api_url);
 		return json_decode($s, true);
 	}
