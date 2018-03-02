@@ -1,7 +1,5 @@
 <?php
 
-namespace Shannan\Wx;
-
 /**
  * 微信小程序
  */
