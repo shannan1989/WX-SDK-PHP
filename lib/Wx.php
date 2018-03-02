@@ -20,6 +20,7 @@ class Wx {
 			$path = __DIR__ . '/wx/src/wx_' . $module_name . '.php';
 			if (file_exists($path)) {
 				include_once $path;
+				self::$modules[] = $module_name;
 			} else {
 				throw new \InvalidArgumentException('The module "' . $module_name . '" does not exist');
 			}
