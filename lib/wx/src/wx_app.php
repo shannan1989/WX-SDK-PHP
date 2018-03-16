@@ -66,4 +66,15 @@ class WxApp extends WxBase {
 		return $s;
 	}
 
+	/**
+	 * 小程序发送模板消息
+	 * @param array $msg 模板消息内容
+	 * @return array
+	 */
+	public function sendTemplateMessage($msg) {
+		$api_url = 'https://api.weixin.qq.com/cgi-bin/message/wxopen/template/send?access_token=' . $this->getAccessToken();
+		$s = self::post($api_url, json_encode($msg, JSON_UNESCAPED_UNICODE));
+		return json_decode($s, true);
+	}
+
 }

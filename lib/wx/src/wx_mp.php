@@ -29,8 +29,8 @@ class WxMp extends WxBase {
 	}
 
 	/**
-	 * 公众号发送模版消息
-	 * @param array $msg 模版消息内容
+	 * 公众号发送模板消息
+	 * @param array $msg 模板消息内容
 	 * @return array
 	 */
 	public function sendTemplateMsg($msg) {
