@@ -1,22 +1,23 @@
 {
-	"name": "shannan/wx-sdk-php",
-	"type": "library",
-	"license": "MIT",
-	"description": "此SDK对微信公众号、微信小程序、微信商户平台的API进行封装，方便开发。",
-	"keywords": ["wechat", "weixin", "weixin-sdk", "weapp", "sdk"],
-	"homepage": "https://github.com/shannan1989/WX-SDK-PHP",
-	"authors": [
-		{
-			"name": "山南",
-			"email": "zhangpeichaook@163.com"
-		}
-	],
-	"require": {},
-	"minimum-stability": "dev",
-	"autoload": {
-		"psr-4": {
-			"Shannan\\Wx\\": "src/"
-		},
-		"classmap": ["lib/Wx.php"]
-	}
+    "name": "shannan/wx-sdk-php",
+    "type": "library",
+    "license": "MIT",
+    "description": "此SDK对微信公众号、微信小程序、微信商户平台的API进行封装，方便开发。",
+    "keywords": ["wechat", "weixin", "weapp", "weixin-sdk", "sdk"],
+    "homepage": "https://github.com/shannan1989/WX-SDK-PHP",
+    "authors": [
+        {
+            "name": "山南",
+            "email": "zhangpeichaook@163.com"
+        }
+    ],
+    "require": {},
+    "require-dev": {},
+    "minimum-stability": "stable",
+    "autoload": {
+        "psr-4": {
+            "Shannan\\Wx\\": "src/"
+        },
+        "classmap": ["lib/Wx.php"]
+    }
 }
