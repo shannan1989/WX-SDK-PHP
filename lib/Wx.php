@@ -5,7 +5,7 @@ namespace Shannan;
 class Wx {
 
 	static private $loaded = false;
-	static private $modules = array();
+	static private $modules = [];
 
 	static function load() {
 		if (self::$loaded !== true) {
