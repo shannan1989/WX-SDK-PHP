@@ -10,7 +10,7 @@ class WxMch {
 	private $_mch_ssl_cert;
 	private $_mch_ssl_key;
 
-	function __construct__($mch_id, $mch_key, $mch_ssl_cert, $mch_ssl_key) {
+	function __construct($mch_id, $mch_key, $mch_ssl_cert, $mch_ssl_key) {
 		$this->_mch_id = $mch_id;
 		$this->_mch_key = $mch_key;
 		$this->_mch_ssl_cert = $mch_ssl_cert;
