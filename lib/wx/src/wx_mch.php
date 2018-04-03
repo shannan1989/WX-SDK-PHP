@@ -133,7 +133,7 @@ class WxMch {
 	 * @param string $open_id 接受红包的用户在appid下的openid
 	 * @param string $trade_no 商户订单号
 	 * @param string $send_name 红包发送者名称
-	 * @param int $amount 付款金额，单位分
+	 * @param float $amount 付款金额，单位元
 	 * @param string $wishing 红包祝福语
 	 * @param string $act_name 活动名称
 	 * @param string $remark 备注信息
@@ -146,7 +146,7 @@ class WxMch {
 			'wxappid' => $app_id,
 			'send_name' => $send_name,
 			're_openid' => $open_id,
-			'total_amount' => $amount,
+			'total_amount' => $amount * 100,
 			'total_num' => 1,
 			'wishing' => $wishing,
 			'client_ip' => $this->getClientIp(),
@@ -186,6 +186,68 @@ class WxMch {
 				'success' => true,
 				'msg' => (string) $t->return_msg,
 				'send_listid' => (string) $t->send_listid //红包订单的微信单号
+			);
+		} else {
+			return array(
+				'success' => false,
+				'msg' => (string) $t->return_msg,
+				'err_msg' => (string) $t->err_code_des,
+				'err_code' => (string) $t->err_code
+			);
+		}
+	}
+
+	/**
+	 * 申请退款
+	 * @param string $app_id 微信分配的小程序ID
+	 * @param string $trade_no 商户系统内部订单号，要求32个字符内，只能是数字、大小写字母_-|*@ ，且在同一个商户号下唯一。
+	 * @param string $transaction_id 微信生成的订单号，在支付通知中有返回
+	 * @param string $refund_no 商户系统内部的退款单号，商户系统内部唯一，只能是数字、大小写字母_-|*@ ，同一退款单号多次请求只退一笔。
+	 * @param float $refund_fee 退款总金额，单位为元
+	 * @param float $total_fee 订单总金额，单位为元
+	 * @param string $refund_desc 若商户传入，会在下发给用户的退款消息中体现退款原因
+	 * @return array 若退款成功，则返回结果包含微信退款单号refund_id
+	 */
+	public function refund($app_id, $trade_no, $transaction_id, $refund_no, $refund_fee, $total_fee, $refund_desc = '') {
+		$data = array(
+			'appid' => $app_id,
+			'mch_id' => $this->_mch_id,
+			'nonce_str' => $this->createNonceStr(32),
+			'out_refund_no' => $refund_no,
+			'out_trade_no' => $trade_no,
+			'refund_fee' => $refund_fee * 100,
+			'total_fee' => $total_fee * 100,
+			'transaction_id' => $transaction_id,
+			'refund_desc' => $refund_desc
+		);
+		unset($data['sign']);
+		ksort($data);
+		$s = '';
+		foreach ($data as $key => $value) {
+			$s = "{$s}{$key}={$value}&";
+		}
+		$s .= 'key=' . $this->_mch_key;
+		$sign = strtoupper(md5($s));
+		$xml = "
+<xml>
+   <appid><![CDATA[{$data['appid']}]]></appid>
+   <mch_id><![CDATA[{$data['mch_id']}]]></mch_id>
+   <nonce_str><![CDATA[{$data['nonce_str']}]]></nonce_str> 
+   <out_refund_no><![CDATA[{$data['out_refund_no']}]]></out_refund_no>
+   <out_trade_no><![CDATA[{$data['out_trade_no']}]]></out_trade_no>
+   <refund_fee><![CDATA[{$data['refund_fee']}]]></refund_fee>
+   <total_fee><![CDATA[{$data['total_fee']}]]></total_fee>
+   <transaction_id><![CDATA[{$data['transaction_id']}]]></transaction_id>
+   <refund_desc><![CDATA[{$data['refund_desc']}]]></refund_desc>
+   <sign><![CDATA[$sign]]></sign>
+</xml>";
+		$ret = $this->postSSLCurl('https://api.mch.weixin.qq.com/secapi/pay/refund', $xml);
+		$t = simplexml_load_string($ret);
+		if ($t->return_code == 'SUCCESS' && $t->result_code == 'SUCCESS') {
+			return array(
+				'success' => true,
+				'msg' => (string) $t->return_msg,
+				'refund_id' => (string) $t->refund_id //微信退款单号
 			);
 		} else {
 			return array(
