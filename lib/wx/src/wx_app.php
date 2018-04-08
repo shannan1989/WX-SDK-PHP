@@ -77,4 +77,15 @@ class WxApp extends WxBase {
 		return json_decode($s, true);
 	}
 
+	/**
+	 * 小程序发送客服消息
+	 * @param array $msg 客服消息内容
+	 * @return array
+	 */
+	public function sendCustomMessage($msg) {
+		$api_url = 'https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=' . $this->getAccessToken();
+		$s = self::post($api_url, json_encode($msg, JSON_UNESCAPED_UNICODE));
+		return json_decode($s, true);
+	}
+
 }
