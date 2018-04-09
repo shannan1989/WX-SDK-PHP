@@ -2,6 +2,7 @@
 
 /**
  * 微信公众号（含服务号与订阅号）
+ * @author 山南
  */
 class WxMp extends WxBase {
 
@@ -24,6 +25,22 @@ class WxMp extends WxBase {
 	 */
 	public function getUserInfo($open_id, $lang = 'zh_CN') {
 		$api_url = 'https://api.weixin.qq.com/cgi-bin/user/info?access_token=' . $this->getAccessToken() . '&openid=' . $open_id . '&lang=' . $lang;
+		$s = self::get($api_url);
+		return json_decode($s, true);
+	}
+
+	/**
+	 * 获取用户列表
+	 * 公众号可通过本接口来获取帐号的关注者列表，关注者列表由一串OpenID（加密后的微信号，每个用户对每个公众号的OpenID是唯一的）组成。一次拉取调用最多拉取10000个关注者的OpenID，可以通过多次拉取的方式来满足需求。
+	 * @param string $next_openid 第一个拉取的OPENID，不填默认从头开始拉取
+	 * @return array 返回值
+	 * 	total：关注该公众账号的总用户数
+	 * 	count：拉取的OPENID个数，最大值为10000
+	 *  data：列表数据，OPENID的列表
+	 * 	next_openid：拉取列表的最后一个用户的OPENID
+	 */
+	public function getUserList($next_openid) {
+		$api_url = 'https://api.weixin.qq.com/cgi-bin/user/get?access_token=' . $this->getAccessToken() . '&next_openid=' . $next_openid;
 		$s = self::get($api_url);
 		return json_decode($s, true);
 	}
