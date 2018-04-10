@@ -10,6 +10,7 @@ class Wx {
 	static function load() {
 		if (self::$loaded !== true) {
 			require_once __DIR__ . '/wx/src/wx_base.php';
+			require_once __DIR__ . '/wx/src/wx_data.php';
 			self::$loaded = true;
 		}
 	}

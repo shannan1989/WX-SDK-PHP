@@ -2,6 +2,7 @@
 
 /**
  * 微信商户平台
+ * @author 山南
  */
 class WxMch {
 
@@ -76,40 +77,22 @@ class WxMch {
 	 * @return array
 	 */
 	public function transfers($trade_no, $app_id, $open_id, $amount, $desc) {
-		$data = array(
-			'partner_trade_no' => $trade_no,
-			'mchid' => $this->_mch_id,
-			'mch_appid' => $app_id,
-			'openid' => $open_id,
-			'amount' => $amount * 100,
-			'check_name' => 'NO_CHECK',
-			'desc' => $desc,
-			'spbill_create_ip' => $this->getClientIp(),
-			'nonce_str' => $this->createNonceStr(32)
-		);
-		unset($data['sign']);
-		ksort($data);
-		$s = '';
-		foreach ($data as $key => $value) {
-			$s = "{$s}{$key}={$value}&";
-		}
-		$s .= 'key=' . $this->_mch_key;
-		$sign = strtoupper(md5($s));
-		$tpl = "
-<xml>
-	<mch_appid><![CDATA[{$data['mch_appid']}]]></mch_appid>
-	<mchid><![CDATA[{$data['mchid']}]]></mchid>
-	<nonce_str><![CDATA[{$data['nonce_str']}]]></nonce_str>
-	<partner_trade_no><![CDATA[{$data['partner_trade_no']}]]></partner_trade_no>
-	<openid><![CDATA[{$data['openid']}]]></openid>
-	<check_name><![CDATA[{$data['check_name']}]]></check_name>
-	<amount><![CDATA[{$data['amount']}]]></amount>
-	<desc><![CDATA[{$data['desc']}]]></desc>
-	<spbill_create_ip><![CDATA[{$data['spbill_create_ip']}]]></spbill_create_ip>
-	<sign><![CDATA[$sign]]></sign>
-</xml>";
-		$ret = $this->postSSLCurl('https://api.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers', $tpl);
-		$t = simplexml_load_string($ret);
+		$wx_data = new WxData();
+		$wx_data->setMchKey($this->_mch_key);
+		$wx_data->setValue('partner_trade_no', $trade_no);
+		$wx_data->setValue('mchid', $this->_mch_id);
+		$wx_data->setValue('mch_appid', $app_id);
+		$wx_data->setValue('openid', $open_id);
+		$wx_data->setValue('amount', $amount * 100);
+		$wx_data->setValue('check_name', 'NO_CHECK');
+		$wx_data->setValue('desc', $desc);
+		$wx_data->setValue('spbill_create_ip', $this->getClientIp());
+		$wx_data->setValue('nonce_str', $this->createNonceStr(32));
+		$wx_data->setSign();
+		$xml = $wx_data->toXML();
+
+		$ret = $this->postSSLCurl('https://api.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers', $xml);
+		$t = simplexml_load_string($ret, 'SimpleXMLElement', LIBXML_NOCDATA);
 		if ($t->return_code == 'SUCCESS' && $t->result_code == 'SUCCESS') {
 			return array(
 				'success' => true,
@@ -140,47 +123,25 @@ class WxMch {
 	 * @return array
 	 */
 	public function sendRedPack($app_id, $open_id, $trade_no, $send_name, $amount, $wishing, $act_name, $remark) {
-		$data = array(
-			'mch_billno' => $trade_no,
-			'mch_id' => $this->_mch_id,
-			'wxappid' => $app_id,
-			'send_name' => $send_name,
-			're_openid' => $open_id,
-			'total_amount' => $amount * 100,
-			'total_num' => 1,
-			'wishing' => $wishing,
-			'client_ip' => $this->getClientIp(),
-			'act_name' => $act_name,
-			'remark' => $remark,
-			'nonce_str' => $this->createNonceStr(32),
-		);
-		unset($data['sign']);
-		ksort($data);
-		$s = '';
-		foreach ($data as $key => $value) {
-			$s = "{$s}{$key}={$value}&";
-		}
-		$s .= 'key=' . $this->_mch_key;
-		$sign = strtoupper(md5($s));
-		$tpl = "
-<xml>
-    <sign><![CDATA[$sign]]></sign>
-    <mch_billno><![CDATA[{$data['mch_billno']}]]></mch_billno>
-    <mch_id><![CDATA[{$data['mch_id']}]]></mch_id>
-    <wxappid><![CDATA[{$data['wxappid']}]]></wxappid>
-    <send_name><![CDATA[{$data['send_name']}]]></send_name>
-    <re_openid><![CDATA[{$data['re_openid']}]]></re_openid>
-    <total_amount><![CDATA[{$data['total_amount']}]]></total_amount>
-    <total_num><![CDATA[{$data['total_num']}]]></total_num>
-    <wishing><![CDATA[{$data['wishing']}]]></wishing>
-    <client_ip><![CDATA[{$data['client_ip']}]]></client_ip>
-    <act_name><![CDATA[{$data['act_name']}]]></act_name>
-    <remark><![CDATA[{$data['remark']}]]></remark>
-    <nonce_str><![CDATA[{$data['nonce_str']}]]></nonce_str>
-</xml>";
+		$wx_data = new WxData();
+		$wx_data->setMchKey($this->_mch_key);
+		$wx_data->setValue('mch_billno', $trade_no);
+		$wx_data->setValue('mch_id', $this->_mch_id);
+		$wx_data->setValue('wxappid', $app_id);
+		$wx_data->setValue('send_name', $send_name);
+		$wx_data->setValue('re_openid', $open_id);
+		$wx_data->setValue('total_amount', $amount * 100);
+		$wx_data->setValue('total_num', 1);
+		$wx_data->setValue('wishing', $wishing);
+		$wx_data->setValue('client_ip', $this->getClientIp());
+		$wx_data->setValue('act_name', $act_name);
+		$wx_data->setValue('remark', $remark);
+		$wx_data->setValue('nonce_str', $this->createNonceStr(32));
+		$wx_data->setSign();
+		$xml = $wx_data->toXML();
 
-		$ret = $this->postSSLCurl('https://api.mch.weixin.qq.com/mmpaymkttransfers/sendredpack', $tpl);
-		$t = simplexml_load_string($ret);
+		$ret = $this->postSSLCurl('https://api.mch.weixin.qq.com/mmpaymkttransfers/sendredpack', $xml);
+		$t = simplexml_load_string($ret, 'SimpleXMLElement', LIBXML_NOCDATA);
 		if ($t->return_code == 'SUCCESS' && $t->result_code == 'SUCCESS') {
 			return array(
 				'success' => true,
@@ -209,40 +170,22 @@ class WxMch {
 	 * @return array 若退款成功，则返回结果包含微信退款单号refund_id
 	 */
 	public function refund($app_id, $trade_no, $transaction_id, $refund_no, $refund_fee, $total_fee, $refund_desc = '') {
-		$data = array(
-			'appid' => $app_id,
-			'mch_id' => $this->_mch_id,
-			'nonce_str' => $this->createNonceStr(32),
-			'out_refund_no' => $refund_no,
-			'out_trade_no' => $trade_no,
-			'refund_fee' => $refund_fee * 100,
-			'total_fee' => $total_fee * 100,
-			'transaction_id' => $transaction_id,
-			'refund_desc' => $refund_desc
-		);
-		unset($data['sign']);
-		ksort($data);
-		$s = '';
-		foreach ($data as $key => $value) {
-			$s = "{$s}{$key}={$value}&";
-		}
-		$s .= 'key=' . $this->_mch_key;
-		$sign = strtoupper(md5($s));
-		$xml = "
-<xml>
-   <appid><![CDATA[{$data['appid']}]]></appid>
-   <mch_id><![CDATA[{$data['mch_id']}]]></mch_id>
-   <nonce_str><![CDATA[{$data['nonce_str']}]]></nonce_str> 
-   <out_refund_no><![CDATA[{$data['out_refund_no']}]]></out_refund_no>
-   <out_trade_no><![CDATA[{$data['out_trade_no']}]]></out_trade_no>
-   <refund_fee><![CDATA[{$data['refund_fee']}]]></refund_fee>
-   <total_fee><![CDATA[{$data['total_fee']}]]></total_fee>
-   <transaction_id><![CDATA[{$data['transaction_id']}]]></transaction_id>
-   <refund_desc><![CDATA[{$data['refund_desc']}]]></refund_desc>
-   <sign><![CDATA[$sign]]></sign>
-</xml>";
+		$wx_data = new WxData();
+		$wx_data->setMchKey($this->_mch_key);
+		$wx_data->setValue('mch_id', $this->_mch_id);
+		$wx_data->setValue('appid', $app_id);
+		$wx_data->setValue('out_trade_no', $trade_no);
+		$wx_data->setValue('transaction_id', $transaction_id);
+		$wx_data->setValue('out_refund_no', $refund_no);
+		$wx_data->setValue('refund_fee', $refund_fee * 100);
+		$wx_data->setValue('total_fee', $total_fee * 100);
+		$wx_data->setValue('refund_desc', $refund_desc);
+		$wx_data->setValue('nonce_str', $this->createNonceStr(32));
+		$wx_data->setSign();
+		$xml = $wx_data->toXML();
+
 		$ret = $this->postSSLCurl('https://api.mch.weixin.qq.com/secapi/pay/refund', $xml);
-		$t = simplexml_load_string($ret);
+		$t = simplexml_load_string($ret, 'SimpleXMLElement', LIBXML_NOCDATA);
 		if ($t->return_code == 'SUCCESS' && $t->result_code == 'SUCCESS') {
 			return array(
 				'success' => true,
