@@ -9,6 +9,7 @@
 class WxData {
 
 	protected $_values = [];
+	protected $_mch_key;
 
 	public function setMchKey($key) {
 		$this->_mch_key = $key;
@@ -115,10 +116,10 @@ class WxData {
 		return $this->_values;
 	}
 
-	public function initFromXML($xml) {
+	public static function initFromXML($xml) {
 		$obj = new self();
 		$obj->fromXML($xml);
-		return $obj;
+		return $obj->_values;
 	}
 
 }

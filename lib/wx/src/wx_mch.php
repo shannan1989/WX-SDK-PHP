@@ -18,7 +18,7 @@ class WxMch {
 		$this->_mch_ssl_key = $mch_ssl_key;
 	}
 
-	private function createNonceStr($length = 16) {
+	private static function getNonceStr($length = 32) {
 		$chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 		$str = '';
 		for ($i = 0; $i < $length; $i++) {
@@ -87,25 +87,25 @@ class WxMch {
 		$wx_data->setValue('check_name', 'NO_CHECK');
 		$wx_data->setValue('desc', $desc);
 		$wx_data->setValue('spbill_create_ip', $this->getClientIp());
-		$wx_data->setValue('nonce_str', $this->createNonceStr(32));
+		$wx_data->setValue('nonce_str', self::getNonceStr(32));
 		$wx_data->setSign();
 		$xml = $wx_data->toXML();
 
 		$ret = $this->postSSLCurl('https://api.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers', $xml);
-		$t = simplexml_load_string($ret, 'SimpleXMLElement', LIBXML_NOCDATA);
-		if ($t->return_code == 'SUCCESS' && $t->result_code == 'SUCCESS') {
+		$t = WxData::initFromXML($ret);
+		if ($t['return_code'] == 'SUCCESS' && $t['result_code'] == 'SUCCESS') {
 			return array(
 				'success' => true,
-				'msg' => (string) $t->return_msg,
-				'channel_guid' => (string) $t->payment_no,
-				'pay_time' => (string) $t->payment_time
+				'msg' => $t['return_msg'],
+				'channel_guid' => $t['payment_no'],
+				'pay_time' => $t['payment_time']
 			);
 		} else {
 			return array(
 				'success' => false,
-				'msg' => (string) $t->return_msg,
-				'err_msg' => (string) $t->err_code_des,
-				'err_code' => (string) $t->err_code
+				'msg' => $t['return_msg'],
+				'err_msg' => $t['err_code_des'],
+				'err_code' => $t['err_code']
 			);
 		}
 	}
@@ -136,24 +136,24 @@ class WxMch {
 		$wx_data->setValue('client_ip', $this->getClientIp());
 		$wx_data->setValue('act_name', $act_name);
 		$wx_data->setValue('remark', $remark);
-		$wx_data->setValue('nonce_str', $this->createNonceStr(32));
+		$wx_data->setValue('nonce_str', self::getNonceStr(32));
 		$wx_data->setSign();
 		$xml = $wx_data->toXML();
 
 		$ret = $this->postSSLCurl('https://api.mch.weixin.qq.com/mmpaymkttransfers/sendredpack', $xml);
-		$t = simplexml_load_string($ret, 'SimpleXMLElement', LIBXML_NOCDATA);
-		if ($t->return_code == 'SUCCESS' && $t->result_code == 'SUCCESS') {
+		$t = WxData::initFromXML($ret);
+		if ($t['return_code'] == 'SUCCESS' && $t['result_code'] == 'SUCCESS') {
 			return array(
 				'success' => true,
-				'msg' => (string) $t->return_msg,
-				'send_listid' => (string) $t->send_listid //红包订单的微信单号
+				'msg' => $t['return_msg'],
+				'send_listid' => $t['send_listid'] //红包订单的微信单号
 			);
 		} else {
 			return array(
 				'success' => false,
-				'msg' => (string) $t->return_msg,
-				'err_msg' => (string) $t->err_code_des,
-				'err_code' => (string) $t->err_code
+				'msg' => $t['return_msg'],
+				'err_msg' => $t['err_code_des'],
+				'err_code' => $t['err_code']
 			);
 		}
 	}
@@ -180,24 +180,24 @@ class WxMch {
 		$wx_data->setValue('refund_fee', $refund_fee * 100);
 		$wx_data->setValue('total_fee', $total_fee * 100);
 		$wx_data->setValue('refund_desc', $refund_desc);
-		$wx_data->setValue('nonce_str', $this->createNonceStr(32));
+		$wx_data->setValue('nonce_str', self::getNonceStr(32));
 		$wx_data->setSign();
 		$xml = $wx_data->toXML();
 
 		$ret = $this->postSSLCurl('https://api.mch.weixin.qq.com/secapi/pay/refund', $xml);
-		$t = simplexml_load_string($ret, 'SimpleXMLElement', LIBXML_NOCDATA);
-		if ($t->return_code == 'SUCCESS' && $t->result_code == 'SUCCESS') {
+		$t = WxData::initFromXML($ret);
+		if ($t['return_code'] == 'SUCCESS' && $t['result_code'] == 'SUCCESS') {
 			return array(
 				'success' => true,
-				'msg' => (string) $t->return_msg,
-				'refund_id' => (string) $t->refund_id //微信退款单号
+				'msg' => $t['return_msg'],
+				'refund_id' => $t['refund_id'] //微信退款单号
 			);
 		} else {
 			return array(
 				'success' => false,
-				'msg' => (string) $t->return_msg,
-				'err_msg' => (string) $t->err_code_des,
-				'err_code' => (string) $t->err_code
+				'msg' => $t['return_msg'],
+				'err_msg' => $t['err_code_des'],
+				'err_code' => $t['err_code']
 			);
 		}
 	}
