@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * 微信公众号和小程序的基础类
+ * @author 山南
+ */
 class WxBase {
 
 	protected $_app_id;
@@ -13,10 +17,17 @@ class WxBase {
 			$this->_app_id = $app_id;
 			$this->_app_secret = $app_secret;
 		} else {
-			throw new InvalidArgumentException('appid/appsecret均为字符串');
+			throw new InvalidArgumentException('appid/appsecret均应为字符串');
 		}
 	}
 
+	/**
+	 * 获取access_token
+	 * access_token是公众号的全局唯一接口调用凭据，公众号调用各接口时都需使用access_token。开发者需要进行妥善保存。
+	 * access_token的存储至少要保留512个字符空间。
+	 * access_token的有效期目前为2个小时，需定时刷新，重复获取将导致上次获取的access_token失效。
+	 * @return string access_token
+	 */
 	protected function getAccessToken() {
 		$api_url = 'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=' . $this->_app_id . '&secret=' . $this->_app_secret;
 		$s = self::get($api_url);
