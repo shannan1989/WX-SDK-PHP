@@ -11,6 +11,10 @@ class WxData {
 	protected $_values = [];
 	protected $_mch_key;
 
+	/**
+	 * 设置商户KEY，用于生成签名
+	 * @param string $key
+	 */
 	public function setMchKey($key) {
 		$this->_mch_key = $key;
 	}

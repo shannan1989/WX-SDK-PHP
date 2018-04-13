@@ -2,6 +2,7 @@
 
 /**
  * 微信小程序
+ * @author 山南
  */
 class WxApp extends WxBase {
 

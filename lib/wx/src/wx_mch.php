@@ -18,6 +18,11 @@ class WxMch {
 		$this->_mch_ssl_key = $mch_ssl_key;
 	}
 
+	/**
+	 * 随机字符串
+	 * @param int $length 长度
+	 * @return string
+	 */
 	private static function getNonceStr($length = 32) {
 		$chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 		$str = '';
