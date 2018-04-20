@@ -46,6 +46,22 @@ class WxMp extends WxBase {
 	}
 
 	/**
+	 * 设置用户备注名
+	 * @param string $openid 用户标识
+	 * @param string $remark 新的备注名，长度必须小于30字符
+	 * @return array
+	 */
+	public function updateUserRemark($openid, $remark) {
+		$post = array(
+			'openid' => $openid,
+			'remark' => $remark
+		);
+		$api_url = 'https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=' . $this->getAccessToken();
+		$s = self::post($api_url, json_encode($post, JSON_UNESCAPED_UNICODE));
+		return json_decode($s, true);
+	}
+
+	/**
 	 * 公众号发送模板消息
 	 * @param array $msg 模板消息内容
 	 * @return array
