@@ -165,8 +165,8 @@ class WxMch {
 
 	/**
 	 * 申请退款
-	 * @param string $app_id 微信分配的小程序ID
-	 * @param string $trade_no 商户系统内部订单号，要求32个字符内，只能是数字、大小写字母_-|*@ ，且在同一个商户号下唯一。
+	 * @param string $app_id 微信分配的公众号/小程序ID
+	 * @param string $out_trade_no 商户系统内部订单号，要求32个字符内，只能是数字、大小写字母_-|*@ ，且在同一个商户号下唯一。
 	 * @param string $transaction_id 微信生成的订单号，在支付通知中有返回
 	 * @param string $refund_no 商户系统内部的退款单号，商户系统内部唯一，只能是数字、大小写字母_-|*@ ，同一退款单号多次请求只退一笔。
 	 * @param float $refund_fee 退款总金额，单位为元
@@ -174,12 +174,12 @@ class WxMch {
 	 * @param string $refund_desc 若商户传入，会在下发给用户的退款消息中体现退款原因
 	 * @return array 若退款成功，则返回结果包含微信退款单号refund_id
 	 */
-	public function refund($app_id, $trade_no, $transaction_id, $refund_no, $refund_fee, $total_fee, $refund_desc = '') {
+	public function refund($app_id, $out_trade_no, $transaction_id, $refund_no, $refund_fee, $total_fee, $refund_desc = '') {
 		$wx_data = new WxData();
 		$wx_data->setMchKey($this->_mch_key);
 		$wx_data->setValue('mch_id', $this->_mch_id);
 		$wx_data->setValue('appid', $app_id);
-		$wx_data->setValue('out_trade_no', $trade_no);
+		$wx_data->setValue('out_trade_no', $out_trade_no);
 		$wx_data->setValue('transaction_id', $transaction_id);
 		$wx_data->setValue('out_refund_no', $refund_no);
 		$wx_data->setValue('refund_fee', $refund_fee * 100);
@@ -196,6 +196,42 @@ class WxMch {
 				'success' => true,
 				'msg' => $t['return_msg'],
 				'refund_id' => $t['refund_id'] //微信退款单号
+			);
+		} else {
+			return array(
+				'success' => false,
+				'msg' => $t['return_msg'],
+				'err_msg' => $t['err_code_des'],
+				'err_code' => $t['err_code']
+			);
+		}
+	}
+
+	/**
+	 * 查询订单
+	 * @param string $app_id 微信分配的公众号/小程序ID
+	 * @param string $transaction_id 微信的订单号，优先使用
+	 * @param string $out_trade_no 商户系统内部订单号，要求32个字符内，只能是数字、大小写字母_-|*@ ，且在同一个商户号下唯一。
+	 * @return array 若查询成功，返回结果中包含交易状态 trade_state
+	 */
+	public function orderQuery($app_id, $transaction_id, $out_trade_no) {
+		$wx_data = new WxData();
+		$wx_data->setMchKey($this->_mch_key);
+		$wx_data->setValue('appid', $app_id);
+		$wx_data->setValue('mch_id', $this->_mch_id);
+		$wx_data->setValue('transaction_id', $transaction_id);
+		$wx_data->setValue('out_trade_no', $out_trade_no);
+		$wx_data->setValue('nonce_str', self::getNonceStr(32));
+		$wx_data->setSign();
+		$xml = $wx_data->toXML();
+
+		$ret = $this->postSSLCurl('https://api.mch.weixin.qq.com/pay/orderquery', $xml);
+		$t = WxData::initFromXML($ret);
+		if ($t['return_code'] == 'SUCCESS' && $t['result_code'] == 'SUCCESS') {
+			return array(
+				'success' => true,
+				'msg' => $t['return_msg'],
+				'trade_state' => $t['trade_state'] //交易状态
 			);
 		} else {
 			return array(
