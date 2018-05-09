@@ -164,6 +164,44 @@ class WxMch {
 	}
 
 	/**
+	 * 查询红包记录
+	 * 用于商户对已发放的红包进行查询红包的具体信息，可支持普通红包和裂变红包。
+	 * @param string $app_id 微信分配的公众账号ID
+	 * @param string $mch_billno 商户发放红包的商户订单号
+	 * @return array
+	 */
+	public function getHbInfo($app_id, $mch_billno) {
+		$wx_data = new WxData();
+		$wx_data->setMchKey($this->_mch_key);
+		$wx_data->setValue('mch_billno', $mch_billno);
+		$wx_data->setValue('mch_id', $this->_mch_id);
+		$wx_data->setValue('appid', $app_id);
+		$wx_data->setValue('bill_type', 'MCHT'); //MCHT:通过商户订单号获取红包信息。
+		$wx_data->setValue('nonce_str', self::getNonceStr(32));
+		$wx_data->setSign();
+		$xml = $wx_data->toXML();
+
+		$ret = $this->postSSLCurl('https://api.mch.weixin.qq.com/mmpaymkttransfers/gethbinfo', $xml);
+		$t = WxData::initFromXML($ret);
+		if ($t['return_code'] == 'SUCCESS' && $t['result_code'] == 'SUCCESS') {
+			return array(
+				'success' => true,
+				'msg' => $t['return_msg'],
+				'status' => $t['status'], //红包状态
+				'send_type' => $t['send_type'], //发放类型
+				'hb_type' => $t['hb_type'] //红包类型
+			);
+		} else {
+			return array(
+				'success' => false,
+				'msg' => $t['return_msg'],
+				'err_msg' => $t['err_code_des'],
+				'err_code' => $t['err_code']
+			);
+		}
+	}
+
+	/**
 	 * 申请退款
 	 * @param string $app_id 微信分配的公众号/小程序ID
 	 * @param string $out_trade_no 商户系统内部订单号，要求32个字符内，只能是数字、大小写字母_-|*@ ，且在同一个商户号下唯一。
