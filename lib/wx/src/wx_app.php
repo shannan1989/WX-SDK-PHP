@@ -68,6 +68,32 @@ class WxApp extends WxBase {
 	}
 
 	/**
+	 * 检查一段文本是否含有违法违规内容。
+	 * 频率限制：单个 appId 调用上限为 2000 次/分钟，1,000,000 次/天
+	 * @param string $content 要检测的文本内容，长度不超过 500KB
+	 * @return array errcode的合法值	0-内容正常	87014-内容含有违法违规内容
+	 */
+	public function msgSecCheck($content) {
+		$api_url = 'https://api.weixin.qq.com/wxa/msg_sec_check?access_token=' . $this->getAccessToken();
+		$post = array('content' => $content);
+		$s = self::post($api_url, json_encode($post, JSON_UNESCAPED_UNICODE));
+		return json_decode($s, true);
+	}
+
+	/**
+	 * 检查一张图片是否含有违法违规内容。
+	 * 频率限制：单个 appId 调用上限为 2000 次/分钟，1,000,000 次/天
+	 * @param Form-Data $image 要检测的图片文件，格式支持PNG、JPEG、JPG、GIF，图片尺寸不超过 750px * 1334px
+	 * @return array errcode的合法值	0-内容正常	87014-内容含有违法违规内容
+	 */
+	public function imgSecCheck($image) {
+		$api_url = 'https://api.weixin.qq.com/wxa/img_sec_check?access_token=' . $this->getAccessToken();
+		$post = array('media' => '@' . $image);
+		$s = self::post($api_url, json_encode($post, JSON_UNESCAPED_UNICODE));
+		return json_decode($s, true);
+	}
+
+	/**
 	 * 小程序发送模板消息
 	 * @param array $msg 模板消息内容
 	 * @return array
