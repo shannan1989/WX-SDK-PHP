@@ -4,7 +4,7 @@
  * 微信公众号和小程序的基础类
  * @author 山南
  */
-class WxBase {
+abstract class WxBase {
 
 	protected $_app_id;
 	protected $_app_secret;
