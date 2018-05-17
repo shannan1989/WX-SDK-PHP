@@ -37,34 +37,72 @@ class WxMch {
 		return $ip;
 	}
 
-	private function postSSLCurl($url, $vars, $second = 30, $headers = []) {
+	/**
+	 * 带证书的请求
+	 * @param string $url 地址
+	 * @param string $data 数据，xml格式
+	 * @param int $timeout 请求超时时间，默认为30秒
+	 * @param array $headers 请求头信息
+	 * @return string
+	 * @throws Exception
+	 */
+	private function requestWithCert($url, $data, $timeout = 30, $headers = []) {
 		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_TIMEOUT, $second); //设置超时
+		curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
 
-		//以下两种方式需选择一种
-		//第一种方法，cert 与 key 分别属于两个.pem文件
-		//默认格式为PEM，可以注释
 		curl_setopt($ch, CURLOPT_SSLCERTTYPE, 'PEM');
 		curl_setopt($ch, CURLOPT_SSLCERT, $this->_mch_ssl_cert);
 		curl_setopt($ch, CURLOPT_SSLKEYTYPE, 'PEM');
 		curl_setopt($ch, CURLOPT_SSLKEY, $this->_mch_ssl_key);
-		//第二种方式，两个文件合成一个.pem文件
-		//curl_setopt($ch, CURLOPT_SSLCERT, '');
 
 		if (count($headers) >= 1) {
 			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 		}
 
 		curl_setopt($ch, CURLOPT_POST, TRUE);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $vars);
-		$data = curl_exec($ch);
-		if ($data) {
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+		$ret = curl_exec($ch);
+		if ($ret) {
 			curl_close($ch);
-			return $data;
+			return $ret;
+		} else {
+			$errno = curl_errno($ch);
+			curl_close($ch);
+			throw new Exception('curl出错，错误码:' . $errno);
+		}
+	}
+
+	/**
+	 * 不带证书的请求
+	 * @param string $url 地址
+	 * @param string $data 数据，xml格式
+	 * @param int $timeout 请求超时时间，默认为30秒
+	 * @param array $headers 请求头信息
+	 * @return string
+	 * @throws Exception
+	 */
+	private function requestWithoutCert($url, $data, $timeout = 30, $headers = []) {
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+
+		if (count($headers) >= 1) {
+			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+		}
+
+		curl_setopt($ch, CURLOPT_POST, TRUE);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+		$ret = curl_exec($ch);
+		if ($ret) {
+			curl_close($ch);
+			return $ret;
 		} else {
 			$errno = curl_errno($ch);
 			curl_close($ch);
@@ -96,7 +134,7 @@ class WxMch {
 		$wx_data->setSign();
 		$xml = $wx_data->toXML();
 
-		$ret = $this->postSSLCurl('https://api.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers', $xml);
+		$ret = $this->requestWithCert('https://api.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers', $xml);
 		$t = WxData::initFromXML($ret);
 		if ($t['return_code'] == 'SUCCESS' && $t['result_code'] == 'SUCCESS') {
 			return array(
@@ -145,7 +183,7 @@ class WxMch {
 		$wx_data->setSign();
 		$xml = $wx_data->toXML();
 
-		$ret = $this->postSSLCurl('https://api.mch.weixin.qq.com/mmpaymkttransfers/sendredpack', $xml);
+		$ret = $this->requestWithCert('https://api.mch.weixin.qq.com/mmpaymkttransfers/sendredpack', $xml);
 		$t = WxData::initFromXML($ret);
 		if ($t['return_code'] == 'SUCCESS' && $t['result_code'] == 'SUCCESS') {
 			return array(
@@ -181,7 +219,7 @@ class WxMch {
 		$wx_data->setSign();
 		$xml = $wx_data->toXML();
 
-		$ret = $this->postSSLCurl('https://api.mch.weixin.qq.com/mmpaymkttransfers/gethbinfo', $xml);
+		$ret = $this->requestWithCert('https://api.mch.weixin.qq.com/mmpaymkttransfers/gethbinfo', $xml);
 		$t = WxData::initFromXML($ret);
 		if ($t['return_code'] == 'SUCCESS' && $t['result_code'] == 'SUCCESS') {
 			return array(
@@ -227,7 +265,7 @@ class WxMch {
 		$wx_data->setSign();
 		$xml = $wx_data->toXML();
 
-		$ret = $this->postSSLCurl('https://api.mch.weixin.qq.com/secapi/pay/refund', $xml);
+		$ret = $this->requestWithCert('https://api.mch.weixin.qq.com/secapi/pay/refund', $xml);
 		$t = WxData::initFromXML($ret);
 		if ($t['return_code'] == 'SUCCESS' && $t['result_code'] == 'SUCCESS') {
 			return array(
@@ -263,7 +301,7 @@ class WxMch {
 		$wx_data->setSign();
 		$xml = $wx_data->toXML();
 
-		$ret = $this->postSSLCurl('https://api.mch.weixin.qq.com/pay/orderquery', $xml);
+		$ret = $this->requestWithoutCert('https://api.mch.weixin.qq.com/pay/orderquery', $xml);
 		$t = WxData::initFromXML($ret);
 		if ($t['return_code'] == 'SUCCESS' && $t['result_code'] == 'SUCCESS') {
 			return array(
