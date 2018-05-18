@@ -136,4 +136,17 @@ class WxApp extends WxBase {
 		return json_decode($s, true);
 	}
 
+	/**
+	 * 客服输入状态
+	 * @param string $open_id 普通用户(openid)
+	 * @param string $command Typing：对用户下发"正在输入"状态；CancelTyping：取消对用户的"正在输入"状态
+	 * @return array
+	 */
+	public function typingCustomMessage($open_id, $command) {
+		$api_url = 'https://api.weixin.qq.com/cgi-bin/message/custom/typing?access_token=' . $this->getAccessToken();
+		$post = array('touser' => $open_id, 'command' => $command);
+		$s = self::post($api_url, json_encode($post, JSON_UNESCAPED_UNICODE));
+		return json_decode($s, true);
+	}
+
 }
