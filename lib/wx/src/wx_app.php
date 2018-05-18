@@ -21,7 +21,7 @@ class WxApp extends WxBase {
 	 * 生成小程序二维码
 	 * @param string $path 对应页面
 	 * @param int $width 二维码宽度，默认为430
-	 * @return blob 二维码的二进制内容
+	 * @return mixed 当请求失败时，返回<b>FALSE</b>，成功时返回<b>array</b>。当array中<b>errcode</b>为<b>0</b>时，<b>data</b>中即为二维码的二进制内容。
 	 */
 	public function createWxaQrcode($path, $width = 430) {
 		$api_url = 'https://api.weixin.qq.com/cgi-bin/wxaapp/createwxaqrcode?access_token=' . $this->getAccessToken();
@@ -30,14 +30,21 @@ class WxApp extends WxBase {
 			'width' => $width
 		);
 		$s = self::post($api_url, json_encode($post, JSON_UNESCAPED_UNICODE));
-		return $s;
+		if ($s === false) {
+			return false;
+		}
+		$r = json_decode($s, true);
+		if (!is_array($r)) {
+			$r = array('errcode' => 0, 'data' => $s);
+		}
+		return $r;
 	}
 
 	/**
 	 * 生成小程序码，有数量限制
 	 * @param string $path 对应页面
 	 * @param int $width 小程序码宽度，默认为430
-	 * @return blob 小程序码的二进制内容
+	 * @return mixed 当请求失败时，返回<b>FALSE</b>，成功时返回<b>array</b>。当array中<b>errcode</b>为<b>0</b>时，<b>data</b>中即为二维码的二进制内容。
 	 */
 	public function getWxaCode($path, $width = 430) {
 		$api_url = 'https://api.weixin.qq.com/wxa/getwxacode?access_token=' . $this->getAccessToken();
@@ -46,7 +53,14 @@ class WxApp extends WxBase {
 			'width' => $width
 		);
 		$s = self::post($api_url, json_encode($post, JSON_UNESCAPED_UNICODE));
-		return $s;
+		if ($s === false) {
+			return false;
+		}
+		$r = json_decode($s, true);
+		if (!is_array($r)) {
+			$r = array('errcode' => 0, 'data' => $s);
+		}
+		return $r;
 	}
 
 	/**
@@ -54,7 +68,7 @@ class WxApp extends WxBase {
 	 * @param string $scene 最大32个可见字符，只支持数字，大小写英文以及部分特殊字符：!#$&'()*+,/:;=?@-._~，其它字符请自行编码为合法字符（因不支持%，中文无法使用 urlencode 处理，请使用其他编码方式）
 	 * @param string $page 必须是已经发布的小程序存在的页面（否则报错），例如 "pages/index/index" ,根路径前不要填加'/',不能携带参数（参数请放在scene字段里），如果不填写这个字段，默认跳主页面
 	 * @param int $width 小程序码宽度，默认为430
-	 * @return blob 小程序码的二进制内容
+	 * @return mixed 当请求失败时，返回<b>FALSE</b>，成功时返回<b>array</b>。当array中<b>errcode</b>为<b>0</b>时，<b>data</b>中即为二维码的二进制内容。
 	 */
 	public function getWxaCodeUnlimit($scene, $page, $width = 430) {
 		$api_url = 'https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=' . $this->getAccessToken();
@@ -64,7 +78,14 @@ class WxApp extends WxBase {
 			'width' => $width
 		);
 		$s = self::post($api_url, json_encode($post, JSON_UNESCAPED_UNICODE));
-		return $s;
+		if ($s === false) {
+			return false;
+		}
+		$r = json_decode($s, true);
+		if (!is_array($r)) {
+			$r = array('errcode' => 0, 'data' => $s);
+		}
+		return $r;
 	}
 
 	/**
