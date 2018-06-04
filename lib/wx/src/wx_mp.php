@@ -162,4 +162,36 @@ class WxMp extends WxBase {
 		return json_decode($s, true);
 	}
 
+	/**
+	 * 生成带参数的二维码
+	 * @param string $action_name 二维码类型，QR_SCENE为临时的整型参数值，QR_STR_SCENE为临时的字符串参数值，QR_LIMIT_SCENE为永久的整型参数值，QR_LIMIT_STR_SCENE为永久的字符串参数值
+	 * @param int $scene_id 场景值ID，临时二维码时为32位非0整型，永久二维码时最大值为100000（目前参数只支持1--100000）
+	 * @param string $scene_str 场景值ID（字符串形式的ID），字符串类型，长度限制为1到64
+	 * @param int $expire_seconds 该二维码有效时间，以秒为单位。 最大不超过2592000（即30天），此字段如果不填，则默认有效期为30秒。
+	 */
+	public function createQrCode($action_name, $scene_id, $scene_str, $expire_seconds = 600) {
+		$api_url = 'https://api.weixin.qq.com/cgi-bin/qrcode/create?access_token=' . $this->getAccessToken();
+		$data = array(
+			'action_name' => $action_name,
+			'action_info' => array(
+				'scene' => array(
+					'scene_id' => $scene_id,
+					'scene_str' => $scene_str
+				)
+			),
+			'expire_seconds' => $expire_seconds
+		);
+		$s = self::post($api_url, json_encode($data, JSON_UNESCAPED_UNICODE));
+		return json_decode($s, true);
+	}
+
+	/**
+	 * 通过ticket换取二维码
+	 * @param string $ticket
+	 * @return string ticket正确情况下，http 返回码是200，是一张图片，可以直接展示或者下载。错误情况下（如ticket非法）返回HTTP错误码404。
+	 */
+	public static function showQrCode($ticket) {
+		return 'https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=' . urlencode($ticket);
+	}
+
 }
