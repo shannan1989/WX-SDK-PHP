@@ -89,13 +89,13 @@ abstract class WxMpApi extends WxMp {
 
 	/**
 	 * 发送文本客服消息
-	 * @param array $dataReceived
+	 * @param string $openid 接收消息的openid
 	 * @param string $content 内容
 	 * @return array
 	 */
-	final protected function sendTextCustomMessage($dataReceived, $content) {
+	final protected function sendTextCustomMessage($openid, $content) {
 		$msg = array(
-			'touser' => $dataReceived['FromUserName'],
+			'touser' => $openid,
 			'msgtype' => 'text',
 			'text' => array('content' => $content)
 		);
@@ -107,7 +107,6 @@ abstract class WxMpApi extends WxMp {
 	 * @param string $content 日志内容
 	 */
 	final protected function logger($content) {
-		//return;
 		if ($_SERVER['REMOTE_ADDR'] != '127.0.0.1') { //LOCAL
 			$max_size = 10000;
 			$log_filename = Settings::create()->get('app_settings.temp_dir') . 'weixin/' . date('Ymd') . '_log.txt';
