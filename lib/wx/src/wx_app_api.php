@@ -88,15 +88,38 @@ abstract class WxAppApi extends WxApp {
 
 	/**
 	 * 发送文本客服消息
-	 * @param array $dataReceived
+	 * @param string $openid 接收消息的openid
 	 * @param string $content 内容
 	 * @return array
 	 */
-	final protected function sendTextCustomMessage($dataReceived, $content) {
+	final protected function sendTextCustomMessage($openid, $content) {
 		$msg = array(
-			'touser' => $dataReceived['FromUserName'],
+			'touser' => $openid,
 			'msgtype' => 'text',
 			'text' => array('content' => $content)
+		);
+		return $this->sendCustomMessage($msg);
+	}
+
+	/**
+	 * 发送图文链接客服消息
+	 * @param string $openid 接收消息的openid
+	 * @param string $title 标题
+	 * @param string $description 描述
+	 * @param string $url 跳转链接
+	 * @param string $thumb_url 缩略图地址
+	 * @return array
+	 */
+	final protected function sendLinkCustomMessage($openid, $title, $description, $url, $thumb_url) {
+		$msg = array(
+			'touser' => $openid,
+			'msgtype' => 'link',
+			'link' => array(
+				'title' => $title,
+				'description' => $description,
+				'url' => $url,
+				'thumb_url' => $thumb_url
+			)
 		);
 		return $this->sendCustomMessage($msg);
 	}
