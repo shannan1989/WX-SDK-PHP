@@ -3,4 +3,4 @@
 
 For Composer users to use this libary as a Vendor library:
 
-use Shannan\Wx::load(); and Shannan\Wx::module('moduleName'); to load required modules.
+use Shannan\Wx::register(); to autoload required classes.

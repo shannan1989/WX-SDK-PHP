@@ -4,27 +4,42 @@ namespace Shannan;
 
 class Wx {
 
-	static private $loaded = false;
-	static private $modules = [];
+	/**
+	 * Register
+	 * @return void
+	 */
+	public static function register() {
+		if (version_compare(PHP_VERSION, '5.1.2', '>=')) {
+			//SPL autoloading was introduced in PHP 5.1.2
+			if (version_compare(PHP_VERSION, '5.3.0', '>=')) {
+				spl_autoload_register(array(new self, 'autoload'), true, true);
+			} else {
+				spl_autoload_register(array(new self, 'autoload'));
+			}
+		} else {
 
-	static function load() {
-		if (self::$loaded !== true) {
-			require_once __DIR__ . '/wx/src/wx_base.php';
-			require_once __DIR__ . '/wx/src/wx_data.php';
-			self::$loaded = true;
+			/**
+			 * Fall back to traditional autoload for old PHP versions
+			 * @param string $classname The name of the class to load
+			 */
+			function __autoload($classname) {
+				Wx::autoload($classname);
+			}
+
 		}
 	}
 
-	static function module($module_name) {
-		self::load();
-		if (!in_array($module_name, self::$modules)) {
-			$path = __DIR__ . '/wx/src/wx_' . $module_name . '.php';
-			if (file_exists($path)) {
-				require_once $path;
-				self::$modules[] = $module_name;
-			} else {
-				throw new \InvalidArgumentException('The module "' . $module_name . '" does not exist');
-			}
+	/**
+	 * Autoload
+	 * @param string $class 类名
+	 */
+	public static function autoload($class) {
+		$filename = strtolower(substr(preg_replace('/([A-Z]+)/', '_$1', $class), 1));
+		//Can't use __DIR__ as it's only in PHP 5.3+ , use dirname(__FILE__) instead.
+		$file = realpath(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'wx' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . $filename . '.php');
+		if (file_exists($file) && is_readable($file)) {
+			/** @noinspection PhpIncludeInspection Dynamic includes */
+			require_once $file;
 		}
 	}
 
