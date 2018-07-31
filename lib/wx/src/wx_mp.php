@@ -194,4 +194,57 @@ class WxMp extends WxBase {
 		return 'https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=' . urlencode($ticket);
 	}
 
+	/**
+	 * 获取微信授权页面地址
+	 * @param string $redirect_uri 授权后重定向的回调链接地址
+	 * @param string $state 重定向后会带上state参数，开发者可以填写a-zA-Z0-9的参数值，最多128字节
+	 * @param bool $userinfo 应用授权作用域，false -> snsapi_base （不弹出授权页面，直接跳转，只能获取用户openid），true -> snsapi_userinfo （弹出授权页面，可通过openid拿到昵称、性别、所在地。并且， 即使在未关注的情况下，只要用户授权，也能获取其信息 ）
+	 * @return string
+	 */
+	public function getOAuthUrl($redirect_uri, $state, $userinfo = false) {
+		$query = array(
+			'appid' => $this->_app_id,
+			'redirect_uri' => urlencode($redirect_uri),
+			'response_type' => 'code',
+			'scope' => $userinfo ? 'snsapi_userinfo' : 'snsapi_base',
+			'state' => $state
+		);
+		return 'https://open.weixin.qq.com/connect/oauth2/authorize?' . http_build_query($query) . '#wechat_redirect';
+	}
+
+	/**
+	 * 通过code换取网页授权access_token。本步骤中获取到网页授权access_token的同时，也获取到了openid。
+	 * @param string $code 授权code
+	 * @return array
+	 */
+	public function getOAuthAccessToken($code) {
+		$query = array(
+			'appid' => $this->_app_id,
+			'secret' => $this->_app_secret,
+			'code' => $code,
+			'grant_type' => 'authorization_code'
+		);
+		$url = 'https://api.weixin.qq.com/sns/oauth2/access_token?' . http_build_query($query);
+		$s = self::get($url);
+		return json_decode($s, true);
+	}
+
+	/**
+	 * 拉取用户信息(需scope为 snsapi_userinfo)
+	 * @param string $access_token 网页授权接口调用凭证,注意：此access_token与基础支持的access_token不同
+	 * @param string $openid 用户的唯一标识
+	 * @param string $lang 返回国家地区语言版本，zh_CN 简体，zh_TW 繁体，en 英语
+	 * @return array
+	 */
+	public function getOAuthUserInfo($access_token, $openid, $lang = 'zh_CN') {
+		$query = array(
+			'access_token' => $access_token,
+			'openid' => $openid,
+			'lang' => $lang
+		);
+		$url = 'https://api.weixin.qq.com/sns/userinfo?' . http_build_query($query);
+		$s = self::get($url);
+		return json_decode($s, true);
+	}
+
 }
