@@ -204,7 +204,7 @@ class WxMp extends WxBase {
 	public function getOAuthUrl($redirect_uri, $state, $userinfo = false) {
 		$query = array(
 			'appid' => $this->_app_id,
-			'redirect_uri' => urlencode($redirect_uri),
+			'redirect_uri' => $redirect_uri,
 			'response_type' => 'code',
 			'scope' => $userinfo ? 'snsapi_userinfo' : 'snsapi_base',
 			'state' => $state
