@@ -163,9 +163,10 @@ class WxMch {
 	 * @param string $wishing 红包祝福语
 	 * @param string $act_name 活动名称
 	 * @param string $remark 备注信息
+	 * @param string $scene_id 场景id，发放红包使用场景，红包金额大于200或者小于1元时必传
 	 * @return array
 	 */
-	public function sendRedPack($app_id, $open_id, $trade_no, $send_name, $amount, $wishing, $act_name, $remark) {
+	public function sendRedPack($app_id, $open_id, $trade_no, $send_name, $amount, $wishing, $act_name, $remark, $scene_id = '') {
 		$wx_data = new WxData();
 		$wx_data->setMchKey($this->_mch_key);
 		$wx_data->setValue('mch_billno', $trade_no);
@@ -179,6 +180,7 @@ class WxMch {
 		$wx_data->setValue('client_ip', $this->getClientIp());
 		$wx_data->setValue('act_name', $act_name);
 		$wx_data->setValue('remark', $remark);
+		$wx_data->setValue('scene_id', $scene_id);
 		$wx_data->setValue('nonce_str', self::getNonceStr(32));
 		$wx_data->setSign();
 		$xml = $wx_data->toXML();
