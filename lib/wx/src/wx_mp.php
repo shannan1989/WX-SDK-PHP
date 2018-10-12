@@ -147,6 +147,16 @@ class WxMp extends WxBase {
 	}
 
 	/**
+	 * 获取公众号的自动回复规则，包括关注后自动回复、消息自动回复（60分钟内触发一次）、关键词自动回复
+	 * @return array
+	 */
+	public function getCurrentAutoreplyInfo() {
+		$api_url = 'https://api.weixin.qq.com/cgi-bin/get_current_autoreply_info?access_token=' . $this->getAccessToken();
+		$s = self::get($api_url);
+		return json_decode($s, true);
+	}
+
+	/**
 	 * 将一条长链接转成短链接。
 	 * 主要使用场景： 开发者用于生成二维码的原链接（商品、支付二维码等）太长导致扫码速度和成功率下降，将原长链接通过此接口转成短链接再生成二维码将大大提升扫码速度和成功率。
 	 * @param string $long_url 需要转换的长链接，支持http://、https://、weixin://wxpay 格式的url
