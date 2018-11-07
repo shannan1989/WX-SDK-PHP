@@ -72,10 +72,10 @@ abstract class WxAppApi extends WxApp {
 	/**
 	 * 转发消息至微信网页版客服工具
 	 * 如果小程序设置了消息推送，普通微信用户向小程序客服发消息时，微信服务器会先将消息 POST 到开发者填写的 url 上，如果希望将消息转发到网页版客服工具，则需要开发者在响应包中返回 MsgType 为 transfer_customer_service 的消息，微信服务器收到响应后会把当次发送的消息转发至客服系统。
-	 * @param array $objReceived
+	 * @param array $dataReceived
 	 * @return string
 	 */
-	final protected function transferCustomerService($objReceived) {
+	final protected function transferCustomerService($dataReceived) {
 		$tpl = "
 <xml>
 <ToUserName><![CDATA[%s]]></ToUserName>
@@ -83,7 +83,7 @@ abstract class WxAppApi extends WxApp {
 <CreateTime>%s</CreateTime>
 <MsgType><![CDATA[transfer_customer_service]]></MsgType>
 </xml>";
-		return sprintf($tpl, $objReceived['FromUserName'], $objReceived['ToUserName'], time());
+		return sprintf($tpl, $dataReceived['FromUserName'], $dataReceived['ToUserName'], time());
 	}
 
 	/**

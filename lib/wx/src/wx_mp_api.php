@@ -88,6 +88,23 @@ abstract class WxMpApi extends WxMp {
 	}
 
 	/**
+	 * 将消息转发到微信网页版客服
+	 * 如果公众号处于开发模式，普通微信用户向公众号发消息时，微信服务器会先将消息POST到开发者填写的url上，如果希望将消息转发到客服系统，则需要开发者在响应包中返回MsgType为transfer_customer_service的消息，微信服务器收到响应后会把当次发送的消息转发至客服系统。
+	 * @param array $dataReceived
+	 * @return string
+	 */
+	final protected function transferCustomerService($dataReceived) {
+		$tpl = "
+<xml>
+<ToUserName><![CDATA[%s]]></ToUserName>
+<FromUserName><![CDATA[%s]]></FromUserName>
+<CreateTime>%s</CreateTime>
+<MsgType><![CDATA[transfer_customer_service]]></MsgType>
+</xml>";
+		return sprintf($tpl, $dataReceived['FromUserName'], $dataReceived['ToUserName'], time());
+	}
+
+	/**
 	 * 发送文本客服消息
 	 * @param string $openid 接收消息的openid
 	 * @param string $content 内容
