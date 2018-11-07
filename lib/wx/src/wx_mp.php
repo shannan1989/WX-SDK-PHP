@@ -157,6 +157,34 @@ class WxMp extends WxBase {
 	}
 
 	/**
+	 * 获取素材总数
+	 * @return array
+	 */
+	public function getMaterialCount() {
+		$api_url = 'https://api.weixin.qq.com/cgi-bin/material/get_materialcount?access_token=' . $this->getAccessToken();
+		$s = self::get($api_url);
+		return json_decode($s, true);
+	}
+
+	/**
+	 * 获取素材列表，可以分类型获取永久素材的列表
+	 * @param string $type 素材的类型，图片（image）、视频（video）、语音 （voice）、图文（news）
+	 * @param int $offset 从全部素材的该偏移位置开始返回，0表示从第一个素材返回
+	 * @param int $count 返回素材的数量，取值在1到20之间
+	 * @return array
+	 */
+	public function getMaterials($type, $offset, $count) {
+		$post = array(
+			'type' => $type,
+			'offset' => $offset,
+			'count' => $count
+		);
+		$api_url = 'https://api.weixin.qq.com/cgi-bin/material/batchget_material?access_token=' . $this->getAccessToken();
+		$s = self::post($api_url, json_encode($post, JSON_UNESCAPED_UNICODE));
+		return json_decode($s, true);
+	}
+
+	/**
 	 * 将一条长链接转成短链接。
 	 * 主要使用场景： 开发者用于生成二维码的原链接（商品、支付二维码等）太长导致扫码速度和成功率下降，将原长链接通过此接口转成短链接再生成二维码将大大提升扫码速度和成功率。
 	 * @param string $long_url 需要转换的长链接，支持http://、https://、weixin://wxpay 格式的url
