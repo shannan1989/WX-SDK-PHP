@@ -120,6 +120,21 @@ abstract class WxMpApi extends WxMp {
 	}
 
 	/**
+	 * 发送图片客服消息
+	 * @param string $openid 接收消息的openid
+	 * @param string $media_id 图片素材的media_id
+	 * @return array
+	 */
+	final protected function sendImageCustomMessage($openid, $media_id) {
+		$msg = array(
+			'touser' => $openid,
+			'msgtype' => 'image',
+			'image' => array('media_id' => $media_id)
+		);
+		return $this->sendCustomMessage($msg);
+	}
+
+	/**
 	 * 记录日志
 	 * @param string $content 日志内容
 	 */
