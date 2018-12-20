@@ -56,7 +56,7 @@ class WxMp extends WxBase {
 			'openid' => $openid,
 			'remark' => $remark
 		);
-		$api_url = 'https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=' . $this->getAccessToken();
+		$api_url = 'https://api.weixin.qq.com/cgi-bin/user/info/updateremark?access_token=' . $this->getAccessToken();
 		$s = self::post($api_url, json_encode($post, JSON_UNESCAPED_UNICODE));
 		return json_decode($s, true);
 	}
