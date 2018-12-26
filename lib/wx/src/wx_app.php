@@ -18,6 +18,39 @@ class WxApp extends WxBase {
 	}
 
 	/**
+	 * 用户支付完成后，获取该用户的 UnionId，无需用户授权。
+	 * 注意：调用前需要用户完成支付，且在支付后的五分钟内有效。
+	 * 以下两种方式任选其一。
+	 * 1、微信支付订单号（transaction_id）
+	 * 2、微信支付商户订单号和微信支付商户号（out_trade_no 及 mch_id）
+	 * @param string $openid 支付用户唯一标识
+	 * @param string $transaction_id 微信支付订单号
+	 * @param string $mch_id 微信支付分配的商户号，和商户订单号配合使用
+	 * @param string $out_trade_no 微信支付商户订单号，和商户号配合使用
+	 * @return array
+	 */
+	public function getPaidUnionId($openid, $transaction_id, $mch_id, $out_trade_no) {
+		if (empty($transaction_id) && (empty($mch_id) || empty($out_trade_no))) {
+			throw new Exception();
+		}
+
+		$query = array(
+			'access_token' => $this->getAccessToken(),
+			'openid' => $openid
+		);
+		if (empty($transaction_id)) {
+			$query['mch_id'] = $mch_id;
+			$query['out_trade_no'] = $out_trade_no;
+		} else {
+			$query['transaction_id'] = $transaction_id;
+		}
+
+		$api_url = 'https://api.weixin.qq.com/wxa/getpaidunionid';
+		$s = self::get($api_url . '?' . http_build_query($query));
+		return json_decode($s, true);
+	}
+
+	/**
 	 * 生成小程序二维码
 	 * @param string $path 对应页面
 	 * @param int $width 二维码宽度，默认为430
