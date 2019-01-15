@@ -102,6 +102,21 @@ abstract class WxAppApi extends WxApp {
 	}
 
 	/**
+	 * 发送图片客服消息
+	 * @param string $openid 接收消息的openid
+	 * @param string $media_id 发送的图片的媒体ID
+	 * @return array
+	 */
+	final protected function sendImageCustomMessage($openid, $media_id) {
+		$msg = array(
+			'touser' => $openid,
+			'msgtype' => 'image',
+			'image' => array('media_id' => $media_id)
+		);
+		return $this->sendCustomMessage($msg);
+	}
+
+	/**
 	 * 发送图文链接客服消息
 	 * @param string $openid 接收消息的openid
 	 * @param string $title 标题
