@@ -28,7 +28,7 @@ abstract class WxAppApi extends WxApp {
 	 */
 	final public function valid() {
 		$tmpArr = array($this->_token, $_GET['timestamp'], $_GET['nonce']);
-		sort($tmpArr);
+		sort($tmpArr, SORT_STRING);
 		$signature = sha1(implode($tmpArr));
 		if ($signature == $_GET['signature']) {
 			echo $_GET['echostr'];
