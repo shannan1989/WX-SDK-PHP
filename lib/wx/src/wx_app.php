@@ -152,6 +152,26 @@ class WxApp extends WxBase {
 	}
 
 	/**
+	 * 发送订阅消息
+	 * @param string $openid 接收者（用户）的 openid
+	 * @param string $template_id 所需下发的订阅模板id
+	 * @param array $data 模板内容，格式形如 { "key1": { "value": any }, "key2": { "value": any } }
+	 * @param string $page 点击模板卡片后的跳转页面，仅限本小程序内的页面。支持带参数,（示例index?foo=bar）。该字段不填则模板无跳转。
+	 * @return array
+	 */
+	public function sendSubscribeMessage($openid, $template_id, $data, $page = '') {
+		$api_url = 'https://api.weixin.qq.com/cgi-bin/message/subscribe/send?access_token=' . $this->getAccessToken();
+		$post = [
+			'touser' => $openid,
+			'template_id' => $template_id,
+			'data' => $data,
+			'page' => $page
+		];
+		$s = self::post($api_url, json_encode($post, JSON_UNESCAPED_UNICODE));
+		return json_decode($s, true);
+	}
+
+	/**
 	 * 小程序发送模板消息
 	 * @param array $msg 模板消息内容
 	 * @return array
