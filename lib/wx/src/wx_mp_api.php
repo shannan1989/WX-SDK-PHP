@@ -27,7 +27,7 @@ abstract class WxMpApi extends WxMp {
 	 * valid signature
 	 */
 	final public function valid() {
-		$tmpArr = array($this->_token, $_GET['timestamp'], $_GET['nonce']);
+		$tmpArr = [$this->_token, $_GET['timestamp'], $_GET['nonce']];
 		sort($tmpArr);
 		$signature = sha1(implode($tmpArr));
 		if ($signature == $_GET['signature']) {
@@ -78,13 +78,40 @@ abstract class WxMpApi extends WxMp {
 	final protected function transmitText($dataReceived, $content) {
 		$tpl = "
 <xml>
-<ToUserName><![CDATA[%s]]></ToUserName>
-<FromUserName><![CDATA[%s]]></FromUserName>
-<CreateTime>%s</CreateTime>
-<MsgType><![CDATA[text]]></MsgType>
-<Content><![CDATA[%s]]></Content>
+	<ToUserName><![CDATA[%s]]></ToUserName>
+	<FromUserName><![CDATA[%s]]></FromUserName>
+	<CreateTime>%s</CreateTime>
+	<MsgType><![CDATA[text]]></MsgType>
+	<Content><![CDATA[%s]]></Content>
 </xml>";
 		return sprintf($tpl, $dataReceived['FromUserName'], $dataReceived['ToUserName'], time(), $content);
+	}
+
+	final protected function transmitNews($dataReceived, $articles) {
+		$items = '';
+		foreach ($articles as $a) {
+			$item = "
+<item>
+	<Title><![CDATA[%s]]></Title>
+	<Description><![CDATA[%s]]></Description>
+	<PicUrl><![CDATA[%s]]></PicUrl>
+	<Url><![CDATA[%s]]></Url>
+</item>";
+			$items .= sprintf($item, $a['title'], $a['desc'], $a['pic'], $a['url']);
+		}
+
+		$tpl = "
+<xml>
+	<ToUserName><![CDATA[%s]]></ToUserName>
+	<FromUserName><![CDATA[%s]]></FromUserName>
+	<CreateTime>%s</CreateTime>
+	<MsgType><![CDATA[news]]></MsgType>
+	<ArticleCount><![CDATA[%s]]></ArticleCount>
+	<Articles>
+		%s
+	</Articless>
+</xml>";
+		return sprintf($tpl, $dataReceived['FromUserName'], $dataReceived['ToUserName'], time(), count($articles), $items);
 	}
 
 	/**
@@ -96,10 +123,10 @@ abstract class WxMpApi extends WxMp {
 	final protected function transferCustomerService($dataReceived) {
 		$tpl = "
 <xml>
-<ToUserName><![CDATA[%s]]></ToUserName>
-<FromUserName><![CDATA[%s]]></FromUserName>
-<CreateTime>%s</CreateTime>
-<MsgType><![CDATA[transfer_customer_service]]></MsgType>
+	<ToUserName><![CDATA[%s]]></ToUserName>
+	<FromUserName><![CDATA[%s]]></FromUserName>
+	<CreateTime>%s</CreateTime>
+	<MsgType><![CDATA[transfer_customer_service]]></MsgType>
 </xml>";
 		return sprintf($tpl, $dataReceived['FromUserName'], $dataReceived['ToUserName'], time());
 	}
@@ -111,11 +138,11 @@ abstract class WxMpApi extends WxMp {
 	 * @return array
 	 */
 	final protected function sendTextCustomMessage($openid, $content) {
-		$msg = array(
+		$msg = [
 			'touser' => $openid,
 			'msgtype' => 'text',
-			'text' => array('content' => $content)
-		);
+			'text' => ['content' => $content]
+		];
 		return $this->sendCustomMessage($msg);
 	}
 
@@ -126,11 +153,11 @@ abstract class WxMpApi extends WxMp {
 	 * @return array
 	 */
 	final protected function sendImageCustomMessage($openid, $media_id) {
-		$msg = array(
+		$msg = [
 			'touser' => $openid,
 			'msgtype' => 'image',
-			'image' => array('media_id' => $media_id)
-		);
+			'image' => ['media_id' => $media_id]
+		];
 		return $this->sendCustomMessage($msg);
 	}
 
@@ -141,7 +168,7 @@ abstract class WxMpApi extends WxMp {
 	final protected function logger($content) {
 		if ($_SERVER['REMOTE_ADDR'] != '127.0.0.1') { //LOCAL
 			$max_size = 10000;
-			$log_filename = Settings::create()->get('app_settings.temp_dir') . 'weixin/' . date('Ymd') . '_log.txt';
+			$log_filename = Settings::create()->get('app_settings.temp_dir') . 'wx/' . date('Ymd') . '.txt';
 			if (file_exists($log_filename) and ( abs(filesize($log_filename)) > $max_size)) {
 				unlink($log_filename);
 			}
