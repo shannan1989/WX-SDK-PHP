@@ -146,7 +146,7 @@ abstract class WxAppApi extends WxApp {
 	final protected function logger($content) {
 		if ($_SERVER['REMOTE_ADDR'] != '127.0.0.1') { //LOCAL
 			$max_size = 10000;
-			$log_filename = Settings::create()->get('app_settings.temp_dir') . 'weixin/' . date('Ymd') . '_log.txt';
+			$log_filename = Settings::create()->get('app_settings.temp_dir') . 'wx/' . date('Ymd') . '.txt';
 			if (file_exists($log_filename) and ( abs(filesize($log_filename)) > $max_size)) {
 				unlink($log_filename);
 			}
